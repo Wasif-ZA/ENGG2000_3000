@@ -1,178 +1,163 @@
-# BladeRunner Project
+# BladeRunner — Carriage Control System Prototype
 
-This project simulates a Carriage Control System using an ESP32 microcontroller, MCP (Master Control Processor), and CCP (Carriage Control Processor). It includes multiple modules for handling different aspects of the system, such as controlling the carriage, processing commands, managing network connections, and logging events.
+BladeRunner is an end-to-end carriage control prototype that combines ESP32 firmware, Java-based control processors, and a Next.js operations UI.
 
-## Table of Contents
+## Problem / Why
 
-- [Project Structure](#project-structure)
-- [Hardware Requirements](#hardware-requirements)
-- [Software Requirements](#software-requirements)
-- [Installation](#installation)
-- [Usage](#usage)
-- [Running the Program](#running-the-program)
-- [Troubleshooting](#troubleshooting)
-- [Java Integration for JSON Processing](#java-integration-for-json-processing)
-- [License](#license)
+Modern control systems often fail the “demo gap”: the hardware works, but the project is hard to understand, run, and evaluate quickly. BladeRunner aims to close that gap by packaging embedded control logic, processor simulation, and a web interface into a single, reviewable repo.
 
-## Project Structure
+It is designed for:
 
-The project is organized into the following directories and files:
+* Teams evaluating system-thinking across hardware and software.
+* Recruiters and reviewers who need a fast, credible walkthrough.
+* Developers who want a clear starting point for extending the project.
 
-```plaintext
-BladeRunner/
-├── CCP/
-│   ├── lib/
-│   │   └── json-20240303.jar
-│   ├── CCP.java
-│   ├── CommunicationHandler.java
-│   ├── JSONProcessor.java
-│   ├── MCP.java
-│   ├── MessageListener.java
-│   ├── StateManager.java
-│   └── UDPCommunicationHandler.java
-│
-├── DOCs/
-│   ├── MethodDocs.md
-│   ├── Setup.md
-│   ├── T3_C1_Design_Document.docx
-│   └── T3_C1_Scoping_Document.docx
-│
-└── .vscode/
-    └── settings.json
+## What it does (Features)
+
+* Simulates a carriage control processor (CCP) in Java.
+* Encodes and decodes command messages using JSON.
+* Models carriage state transitions in a dedicated state manager.
+* Provides UDP-based communication handlers for processor messaging.
+* Includes ESP32-oriented firmware and hardware integration scaffolding.
+* Ships a Next.js UI for a fast, visual project entry point.
+* Centralizes architecture notes and engineering decisions in `/docs`.
+
+## Tech Stack
+
+**Frontend**
+* Next.js 16
+* React 19
+* Tailwind CSS
+
+**Backend / Control Layer**
+* Java (JDK 11+)
+* UDP networking
+* `org.json` (via local JAR)
+
+**Embedded / Hardware**
+* ESP32 firmware (C/C++ toolchains expected)
+
+**Tools**
+* npm / Node.js 20+
+* TypeScript
+* GitHub Actions (CI for the web UI)
+
+## Architecture Overview
+
+```text
+[Operator]
+   |
+   v
+[Next.js UI: website/code]
+   |
+   v
+[Control Processors: CCP / MCP simulations]
+   |
+   v
+[ESP32 Firmware: ESP]
+   |
+   v
+[Physical carriage, doors, sensors]
 ```
 
+BladeRunner is organized as a multi-layer system:
 
-- **CCP/lib**: Contains external library files, such as `json-20240303.jar`, used for JSON processing.
-- **CCP**: Contains Java source files for the Carriage Control Processor.
-- **DOCs**: Holds various documentation files, including setup instructions, method documentation, and design documents.
-- **.vscode**: Contains VS Code-specific settings for the projec
-- **Java Components**:
-  - `CCP.java`: A Java program that simulates the Carriage Control Processor (CCP) interacting with the MCP and ESP32 devices over a network.
-  - `UDPCommunicationHandler.java`: Handles communication between the CCP and MCP via UDP.
-  - `StateManager.java`: Manages the state of the Carriage Control Processor.
-  - `JSONProcessor.java`: Encodes and decodes messages in JSON format.
-  - `CommunicationHandler.java`: Interface defining methods for sending and receiving messages.
-  - `MessageListener.java`: Interface for handling incoming messages.
+1. **Operations UI (`website/code/`)** provides a fast, runnable entry point.
+2. **Control processors (`CCP/` and related modules)** handle command parsing and state transitions.
+3. **ESP32 firmware (`ESP/`)** is responsible for hardware-level execution.
 
+A more detailed write-up is available in [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
 
-## Hardware Requirements
+## How to Run Locally
 
-- **ESP32**: The primary hardware device for carriage control and networking.
-- **Sensors**: As required (e.g., ultrasonic sensors or IR photodiodes for alignment).
+### Prerequisites
 
-## Software Requirements
+* Node.js 20+ and npm
+* Java JDK 11+
 
-- **Java Development Kit (JDK)** version 11 or later.
-- **Visual Studio Code (VS Code)** with Java Extension Pack for Java development.
-- **ESP32 development tools** (if programming the ESP32).
-- **Wi-Fi network** for communication between the ESP32 and the MCP/CCP.
-- **`org.json` library** for JSON processing.
+### Install
 
-## Installation
+Install the web UI dependencies:
 
-### Step 1: Clone the Repository
-
-1. Open your terminal and run the following command to clone the repository:
-
-   ```bash
-   git clone https://github.com/Wasif-ZA/BladeRunner.git
-   ```
-
-2. Change into the `CCP` directory:
-
-   ```bash
-   cd BladeRunner/CCP
-   ```
-
-### Step 2: Open the Project in VS Code
-
-1. Launch **Visual Studio Code**.
-2. Go to **File > Open Folder** and select the `BladeRunner/CCP` directory.
-
-### Step 3: Install Java Extensions
-
-1. Go to the **Extensions** tab on the left (`Ctrl + Shift + X`).
-2. Search for **Java Extension Pack** and install it if not already installed. This pack includes support for Java projects, builds, debugging, etc.
-
-### Step 4: Add the JSON Library to the Classpath
-
-
-1. Ensure that `json-20240303.jar` (or the appropriate version of the JSON library) is located in the `lib` folder inside your project director
-2. In the **Java Projects** view on the left side of VS Code, click the `+` icon under **Referenced Libraries**.
-3. Select the `lib/json-20220320.jar` file to add it to the classpath.
-
-### Step 5: Customize Network Addresses (if needed)
-
-- Open `CCP.java` and ensure the network addresses (e.g., for the ESP32 and MCP) are configured properly according to your network setup.
-
-### Step 6: Build and Run the Java Program
-
-1. To build and run the program, open `CCP.java` and press `F5` or use the Run button in VS Code.
-2. The program will simulate the interaction between the CCP and MCP, processing commands like starting, stopping, and moving the carriage.
-
-## Usage
-
-1. **Initialize the CCP**:
-   - The `CCP` class is the entry point. You can instantiate it by passing the appropriate parameters for your MCP and ESP32 addresses.
-
-2. **Customize Commands**:
-   - The `processMCPAction()` method handles commands such as `STOPC`, `FSLOWC`, `FFASTC`, and forwards them to the ESP32 for execution.
-
-3. **Monitor Outputs**:
-   - You can monitor the status of the CCP and its interactions with the MCP and ESP32 in the console output.
-
-### Example Command Processing
-
-When a message is received from the MCP, such as a `STOPC` command, the following actions take place:
-
-```java
-case "STOPC":
-    stopAndCloseDoors();  // Stop the carriage and close its doors.
-    sendStatus("STOPC");  // Send status back to the MCP.
-    break;
+```bash
+npm --prefix website/code ci
 ```
 
-Similarly, messages are sent to the ESP32 for hardware-level control of the carriage.
+### Run
 
-## Running the Program
+Start the Next.js operations UI:
 
-### Example Workflow
+```bash
+npm --prefix website/code run dev
+```
 
-1. The CCP connects to the MCP by sending an initialization message.
-2. The MCP sends a command to move the carriage forward slowly (`FSLOWC`).
-3. The CCP processes the command and forwards it to the ESP32.
-4. Based on the ESP32's feedback, the CCP adjusts its status and sends updates back to the MCP.
+Then open:
 
-## Troubleshooting
+* <http://localhost:3000>
 
-- **No JSON Recognition**: Ensure that the `json-20220320.jar` is properly added to the classpath in VS Code. You can verify this by checking the **Java Projects** section.
-- **Network Issues**: Make sure your network configuration (IP addresses, ports) is correct for the ESP32 and MCP. You might need to adjust firewall settings if using multiple devices on a Wi-Fi network.
-- **Build Errors**: Verify that the **Java SDK** is set correctly in VS Code by going to **Settings > Java: Configuration**.
+### Build / Test Commands
 
-## Java Integration for JSON Processing
+From the repository root:
 
-To verify that JSON processing works correctly in your project:
+```bash
+npm --prefix website/code run lint
+npm --prefix website/code run format
+npm --prefix website/code run test
+npm --prefix website/code run build
+```
 
-1. Create a new Java class named `TestJSON.java` in the `CCP` package:
+To compile the Java control processor locally:
 
-   ```java
-   package CCP;
+```bash
+cd CCP
+javac -cp "lib/json-20240303.jar" *.java
+```
 
-   import org.json.JSONObject;
+## Configuration
 
-   public class TestJSON {
-       public static void main(String[] args) {
-           JSONObject jsonObj = new JSONObject();
-           jsonObj.put("name", "Blade Runner");
-           jsonObj.put("status", "active");
-           System.out.println(jsonObj.toString());
-       }
-   }
-   ```
+This repo includes a safe starter env file:
 
-2. Run the program to ensure the JSON object is printed correctly in the terminal.
+* Copy `.env.example` to `.env` if you need environment variables later.
+
+```bash
+cp .env.example .env
+```
+
+At the moment, no environment variables are required to run the UI locally.
+
+## Screenshots / Demo
+
+Binary image assets are intentionally not committed in this environment. Use the local dev server for a live demo:
+
+```bash
+npm --prefix website/code run dev
+```
+
+Then visit <http://localhost:3000>.
+
+## Key Decisions (Engineering)
+
+* Consolidated documentation under `/docs` and moved legacy material to `/docs/legacy`.
+* Focused CI on the runnable Next.js surface first to deliver fast feedback.
+* Removed generated artifacts like `node_modules/` from version control expectations.
+* Standardized root-level hygiene with a repo-wide `.gitignore` and contributor guidance.
+
+See [`docs/DECISIONS.md`](docs/DECISIONS.md) for more detail.
+
+## Roadmap / Next Improvements
+
+* Add CI checks for Java compilation and basic simulation tests.
+* Expand the operations UI into a real command console.
+* Define a shared message schema between processors and firmware.
+* Add real UI screenshots or a demo recording once assets can be hosted externally.
+* Add API-level documentation if/when HTTP services are introduced.
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License. See [`LICENSE`](LICENSE).
 
+## Contact
+
+* GitHub: [@Wasif-ZA](https://github.com/Wasif-ZA)
+* LinkedIn: _Add your link here_
+* Email: _Add your preferred contact here_

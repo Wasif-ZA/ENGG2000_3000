@@ -122,8 +122,8 @@ const CodeExplanation: React.FC = () => {
                   code={`heartbeatExecutor.scheduleAtFixedRate(() -> {
     try {
         sendHeartbeat(); // UDP Packet Dispatch
-    } catch (Exception e) { 
-        logError(e); 
+    } catch (Exception e) {
+        logError(e);
     }
 }, 0, 2, TimeUnit.SECONDS);`}
                 />
