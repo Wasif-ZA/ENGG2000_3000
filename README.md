@@ -159,5 +159,6 @@ This project is licensed under the MIT License. See [`LICENSE`](LICENSE).
 ## Contact
 
 * GitHub: [@Wasif-ZA](https://github.com/Wasif-ZA)
-* LinkedIn: _Add your link here_
-* Email: _Add your preferred contact here_
+* LinkedIn: https://www.linkedin.com/in/wasif-zaman-4228b5245/
+* Email: wasif.zaman1@gmail.com
+
