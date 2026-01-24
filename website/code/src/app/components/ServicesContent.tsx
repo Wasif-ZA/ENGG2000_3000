@@ -1,9 +1,9 @@
 "use client";
 import React, { useRef } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
-import { FiArrowUpRight } from "react-icons/fi";
+import { FiArrowUpRight, FiCpu, FiActivity, FiServer } from "react-icons/fi";
 
-// Props Interface for individual content items
+// Props Interface
 interface ContentPagesProps {
   imgUrl: string;
   subheading: string;
@@ -12,9 +12,9 @@ interface ContentPagesProps {
   buttonText: string;
   extraText?: string;
   href?: string;
+  icon?: React.ElementType;
 }
 
-// Props Interface for the main ServicesContent component
 interface ServicesContentProps {
   title: string;
   contentData: ContentPagesProps[];
@@ -22,7 +22,28 @@ interface ServicesContentProps {
 
 const IMG_PADDING = 12;
 
-// Reusable TextParallaxContent Component
+const ServicesContent: React.FC<ServicesContentProps> = ({ title, contentData }) => {
+  return (
+    <section className="bg-neutral-950 font-sans">
+      {/* Section Title */}
+      <div className="py-20 px-4 text-center">
+        <h2 className="text-cyan-500 font-mono text-sm tracking-widest uppercase mb-4">
+          // System Architecture
+        </h2>
+        <h1 className="text-4xl md:text-5xl font-bold text-white uppercase tracking-tight">
+          {title}
+        </h1>
+      </div>
+
+      <div className="container mx-auto">
+        {contentData.map((content, index) => (
+          <TextParallaxContent key={index} {...content} />
+        ))}
+      </div>
+    </section>
+  );
+};
+
 const TextParallaxContent: React.FC<ContentPagesProps> = ({
   imgUrl,
   subheading,
@@ -31,6 +52,7 @@ const TextParallaxContent: React.FC<ContentPagesProps> = ({
   buttonText,
   extraText,
   href,
+  icon: Icon
 }) => {
   return (
     <div style={{ paddingLeft: IMG_PADDING, paddingRight: IMG_PADDING }}>
@@ -43,17 +65,13 @@ const TextParallaxContent: React.FC<ContentPagesProps> = ({
         buttonText={buttonText}
         extraText={extraText}
         href={href}
+        icon={Icon}
       />
     </div>
   );
 };
 
-// StickyImage Component
-interface StickyImageProps {
-  imgUrl: string;
-}
-
-const StickyImage: React.FC<StickyImageProps> = ({ imgUrl }) => {
+const StickyImage: React.FC<{ imgUrl: string }> = ({ imgUrl }) => {
   const targetRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
     target: targetRef,
@@ -74,20 +92,16 @@ const StickyImage: React.FC<StickyImageProps> = ({ imgUrl }) => {
         scale,
       }}
       ref={targetRef}
-      className="sticky z-0 overflow-hidden rounded-3xl"
+      className="sticky z-0 overflow-hidden rounded-xl border border-white/10"
     >
-      <motion.div className="absolute inset-0 bg-neutral-950/70" style={{ opacity }} />
+      <motion.div className="absolute inset-0 bg-black/60" style={{ opacity }} />
+      {/* Scanline Effect */}
+      <div className="absolute inset-0 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] z-10 bg-[length:100%_2px,3px_100%] pointer-events-none" />
     </motion.div>
   );
 };
 
-// OverlayCopy Component
-interface OverlayCopyProps {
-  subheading: string;
-  heading: string;
-}
-
-const OverlayCopy: React.FC<OverlayCopyProps> = ({ subheading, heading }) => {
+const OverlayCopy: React.FC<{ subheading: string; heading: string }> = ({ subheading, heading }) => {
   const targetRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
     target: targetRef,
@@ -103,56 +117,40 @@ const OverlayCopy: React.FC<OverlayCopyProps> = ({ subheading, heading }) => {
       ref={targetRef}
       className="absolute left-0 top-0 flex h-screen w-full flex-col items-center justify-center text-white"
     >
-      <p className="mb-2 text-center text-xl md:mb-4 md:text-3xl">{subheading}</p>
-      <p className="text-center text-4xl font-bold md:text-7xl">{heading}</p>
+      <div className="bg-black/60 backdrop-blur-md p-8 border border-white/10 rounded-lg">
+        <p className="mb-2 text-center text-cyan-400 font-mono text-sm tracking-widest uppercase">{subheading}</p>
+        <p className="text-center text-4xl font-bold md:text-6xl uppercase tracking-tighter">{heading}</p>
+      </div>
     </motion.div>
   );
 };
 
-// ExampleContent Component with Dynamic Props
-interface ExampleContentProps {
-  description: string;
-  buttonText: string;
-  extraText?: string;
-  href?: string;
-}
-
-const ExampleContent: React.FC<ExampleContentProps> = ({
+const ExampleContent: React.FC<Pick<ContentPagesProps, "description" | "buttonText" | "extraText" | "href" | "icon">> = ({
   description,
   buttonText,
   extraText,
   href,
+  icon: Icon
 }) => (
-  <div className="mx-auto grid max-w-5xl grid-cols-1 gap-8 px-4 pb-24 pt-12 md:grid-cols-12">
-    <h2 className="col-span-1 text-3xl font-bold md:col-span-4">
-      {extraText || "Additional content explaining the above card here"}
-    </h2>
+  <div className="mx-auto grid max-w-5xl grid-cols-1 gap-8 px-4 pb-24 pt-12 md:grid-cols-12 text-gray-300">
+    <div className="col-span-1 md:col-span-4">
+      <h2 className="text-2xl font-bold text-white mb-4">{extraText}</h2>
+      {Icon && <Icon className="text-cyan-500 text-5xl mb-4" />}
+      <div className="h-1 w-12 bg-cyan-600 rounded-full" />
+    </div>
+
     <div className="col-span-1 md:col-span-8">
-      <p className="mb-4 text-xl text-neutral-600 md:text-2xl">{description}</p>
-      <a href={href} className="w-full rounded bg-neutral-900 px-9 py-4 text-xl text-white transition-colors hover:bg-neutral-700 md:w-fit">
-        {buttonText} <FiArrowUpRight className="inline" />
+      <p className="mb-8 text-lg text-gray-400 leading-relaxed border-l-2 border-cyan-900/50 pl-6">
+        {description}
+      </p>
+      <a
+        href={href || "#"}
+        className="group inline-flex items-center gap-2 bg-white/5 border border-white/10 px-6 py-3 text-cyan-400 font-mono text-sm uppercase tracking-wider transition-all hover:bg-cyan-500 hover:text-black"
+      >
+        {buttonText} <FiArrowUpRight className="group-hover:-translate-y-1 group-hover:translate-x-1 transition-transform" />
       </a>
     </div>
   </div>
 );
-
-const ServicesContent: React.FC<ServicesContentProps> = ({ title, contentData }) => {
-  return (
-    <section
-      className="relative w-full overflow-hidden bg-black"
-      style={{
-        backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32' width='32' height='32' fill='none' stroke='%23171717'%3e%3cpath d='M0 .5H31.5V32'/%3e%3c/svg%3e")`,
-        backgroundSize: "32px 32px",
-      }}
-    >
-      <h1 className="text-white text-4xl text-center py-8">{title}</h1>
-      <div className="container mx-auto">
-        {contentData.map((content, index) => (
-          <TextParallaxContent key={index} {...content} />
-        ))}
-      </div>
-    </section>
-  );
-};
 
 export default ServicesContent;

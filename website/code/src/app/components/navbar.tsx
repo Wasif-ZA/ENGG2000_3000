@@ -1,58 +1,102 @@
-import Link from 'next/link';
+"use client";
+import React, { useState } from "react";
+import Link from "next/link";
+import { motion, AnimatePresence } from "framer-motion";
 
 const Navbar: React.FC = () => {
+  const [isOpen, setIsOpen] = useState(false);
+
+  const toggleMenu = () => setIsOpen(!isOpen);
+
+  const navLinks = [
+    { name: "Overview", href: "#project-overview" },
+    { name: "Simulation", href: "#code-demo" },
+    { name: "Architecture", href: "#architecture" },
+    { name: "Setup", href: "#installation" },
+  ];
+
   return (
-    <nav className="block w-full max-w-screen-lg px-4 py-2 mx-auto text-white bg-slate-900 shadow-md rounded-md lg:px-8 lg:py-3 mt-10">
-      <div className="container flex flex-wrap items-center justify-between mx-auto text-gray-100">
-        <Link href="/" legacyBehavior>
-          <a className="mr-4 block cursor-pointer py-1.5 text-base text-gray-200 font-semibold">
-            CryptoExchange
-          </a>
-        </Link>
-        <div className="hidden lg:block">
-          <ul className="flex flex-col gap-2 mt-2 mb-4 lg:mb-0 lg:mt-0 lg:flex-row lg:items-center lg:gap-6">
-            <li className="flex items-center p-1 text-sm gap-x-2 text-gray-200">
-              <Link href="/markets" legacyBehavior>
-                <a className="flex items-center">Markets</a>
-              </Link>
-            </li>
-            <li className="flex items-center p-1 text-sm gap-x-2 text-gray-200">
-              <Link href="/wallet" legacyBehavior>
-                <a className="flex items-center">Wallet</a>
-              </Link>
-            </li>
-            <li className="flex items-center p-1 text-sm gap-x-2 text-gray-200">
-              <Link href="/exchange" legacyBehavior>
-                <a className="flex items-center">Exchange</a>
-              </Link>
-            </li>
-            <li className="flex items-center p-1 text-sm gap-x-2 text-gray-200">
-              <Link href="/support" legacyBehavior>
-                <a className="flex items-center">Support</a>
-              </Link>
-            </li>
-          </ul>
+    <nav className="fixed top-0 left-0 right-0 z-50 px-4 py-3 md:px-8">
+      <div className="mx-auto max-w-7xl">
+        <div className="relative flex items-center justify-between rounded-xl border border-white/10 bg-black/60 px-6 py-3 shadow-[0_0_20px_-5px_rgba(0,0,0,0.5)] backdrop-blur-xl transition-all hover:border-cyan-500/30">
+
+          {/* Logo / Brand */}
+          <Link href="/" className="group flex items-center gap-2">
+            <div className="h-2 w-2 bg-cyan-500 shadow-[0_0_10px_#06b6d4] transition-transform group-hover:scale-150" />
+            <span className="font-mono text-lg font-bold tracking-widest text-gray-100 transition-colors group-hover:text-cyan-400">
+              BR // CCP
+            </span>
+          </Link>
+
+          {/* Desktop Navigation */}
+          <div className="hidden lg:block">
+            <ul className="flex items-center gap-8">
+              {navLinks.map((link) => (
+                <li key={link.name}>
+                  <Link
+                    href={link.href}
+                    className="relative font-mono text-xs uppercase tracking-wider text-gray-400 transition-colors hover:text-cyan-400"
+                  >
+                    <span className="mr-1 text-cyan-900">//</span>
+                    {link.name}
+                  </Link>
+                </li>
+              ))}
+
+              {/* GitHub CTA */}
+              <li>
+                <a
+                  href="https://github.com/Wasif-ZA/BladeRunner"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="rounded border border-white/20 bg-white/5 px-4 py-1.5 font-mono text-xs font-bold uppercase text-white transition-all hover:bg-cyan-500 hover:text-black hover:shadow-[0_0_20px_rgba(6,182,212,0.4)]"
+                >
+                  GitHub
+                </a>
+              </li>
+            </ul>
+          </div>
+
+          {/* Mobile Menu Button */}
+          <button
+            className="group relative ml-auto h-8 w-8 lg:hidden"
+            onClick={toggleMenu}
+            aria-label="Toggle Menu"
+          >
+            <div className="flex flex-col items-end gap-1.5">
+              <span className={`h-0.5 w-6 bg-cyan-500 transition-all ${isOpen ? "rotate-45 translate-y-2" : ""}`} />
+              <span className={`h-0.5 w-4 bg-cyan-500 transition-all ${isOpen ? "opacity-0" : ""}`} />
+              <span className={`h-0.5 w-6 bg-cyan-500 transition-all ${isOpen ? "-rotate-45 -translate-y-2" : ""}`} />
+            </div>
+          </button>
         </div>
-        <button
-          className="relative ml-auto h-6 max-h-[40px] w-6 max-w-[40px] select-none rounded-lg text-center align-middle text-xs font-medium uppercase text-inherit transition-all hover:bg-transparent focus:bg-transparent active:bg-transparent disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none lg:hidden"
-          type="button"
-        >
-          <span className="absolute transform -translate-x-1/2 -translate-y-1/2 top-1/2 left-1/2">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="w-6 h-6"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
+
+        {/* Mobile Dropdown */}
+        <AnimatePresence>
+          {isOpen && (
+            <motion.div
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              className="mt-2 rounded-xl border border-white/10 bg-black/90 p-4 backdrop-blur-xl lg:hidden"
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M4 6h16M4 12h16M4 18h16"
-              ></path>
-            </svg>
-          </span>
-        </button>
+              <ul className="flex flex-col gap-4">
+                {navLinks.map((link) => (
+                  <li key={link.name}>
+                    <Link
+                      href={link.href}
+                      onClick={() => setIsOpen(false)}
+                      className="block font-mono text-sm uppercase tracking-wider text-gray-300 hover:text-cyan-400"
+                    >
+                      <span className="mr-2 text-cyan-800">&gt;</span>
+                      {link.name}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </nav>
   );
